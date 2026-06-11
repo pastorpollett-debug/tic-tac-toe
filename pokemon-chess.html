@@ -192,7 +192,7 @@
 <body>
 
 <h1>⚡ Pokémon Chess ⚡</h1>
-<div class="subtitle">Mewtwo's Army (White) vs Gengar's Gang (Black) — two players, one board</div>
+<div class="subtitle">Mewtwo's Army (White) vs their Shiny counterparts (Black) — two players, one board</div>
 
 <div class="status" id="status"></div>
 
@@ -228,33 +228,26 @@
 </div>
 
 <script>
-const SPRITE = id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+const SPRITE = (id, side) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${side === 'b' ? 'shiny/' : ''}${id}.png`;
 
 const POKEMON = {
-  w: {
-    K: { id: 150, name: 'Mewtwo' },
-    Q: { id: 282, name: 'Gardevoir' },
-    R: { id: 76,  name: 'Golem' },
-    B: { id: 65,  name: 'Alakazam' },
-    N: { id: 78,  name: 'Rapidash' },
-    P: { id: 25,  name: 'Pikachu' },
-  },
-  b: {
-    K: { id: 94,  name: 'Gengar' },
-    Q: { id: 31,  name: 'Nidoqueen' },
-    R: { id: 95,  name: 'Onix' },
-    B: { id: 97,  name: 'Hypno' },
-    N: { id: 229, name: 'Houndoom' },
-    P: { id: 133, name: 'Eevee' },
-  },
+  K: { id: 150, name: 'Mewtwo' },
+  Q: { id: 282, name: 'Gardevoir' },
+  R: { id: 76,  name: 'Golem' },
+  B: { id: 65,  name: 'Alakazam' },
+  N: { id: 78,  name: 'Rapidash' },
+  P: { id: 25,  name: 'Pikachu' },
 };
+
+const pokeName = (type, side) => (side === 'b' ? `Shiny ${POKEMON[type].name}` : POKEMON[type].name);
 
 const PIECE_NAMES = { K: 'King', Q: 'Queen', R: 'Rook', B: 'Bishop', N: 'Knight', P: 'Pawn' };
 const UNICODE = {
   w: { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' },
   b: { K: '♚', Q: '♛', R: '♜', B: '♝', N: '♞', P: '♟' },
 };
-const TEAM = { w: "Mewtwo's Army (White)", b: "Gengar's Gang (Black)" };
+const TEAM = { w: "Mewtwo's Army (White)", b: 'The Shiny Squad (Black)' };
 
 let S; // game state
 
@@ -477,13 +470,12 @@ function showPromo(side) {
   const box = document.getElementById('promoChoices');
   box.innerHTML = '';
   for (const t of ['Q', 'R', 'B', 'N']) {
-    const pk = POKEMON[side][t];
     const btn = document.createElement('button');
     const img = document.createElement('img');
-    img.src = SPRITE(pk.id);
-    img.alt = pk.name;
+    img.src = SPRITE(POKEMON[t].id, side);
+    img.alt = pokeName(t, side);
     const label = document.createElement('span');
-    label.textContent = `${pk.name} (${PIECE_NAMES[t]})`;
+    label.textContent = `${pokeName(t, side)} (${PIECE_NAMES[t]})`;
     btn.append(img, label);
     btn.addEventListener('click', () => {
       S.bd[S.pendingPromo.r][S.pendingPromo.c].type = t;
@@ -515,11 +507,10 @@ function onCellClick(r, c) {
 }
 
 function pieceEl(p, size) {
-  const pk = POKEMON[p.side][p.type];
   const img = document.createElement('img');
-  img.src = SPRITE(pk.id);
-  img.alt = `${pk.name} (${PIECE_NAMES[p.type]})`;
-  img.title = `${pk.name} — ${p.side === 'w' ? 'White' : 'Black'} ${PIECE_NAMES[p.type]}`;
+  img.src = SPRITE(POKEMON[p.type].id, p.side);
+  img.alt = `${pokeName(p.type, p.side)} (${PIECE_NAMES[p.type]})`;
+  img.title = `${pokeName(p.type, p.side)} — ${p.side === 'w' ? 'White' : 'Black'} ${PIECE_NAMES[p.type]}`;
   if (size) { img.style.width = size; img.style.height = size; }
   img.addEventListener('error', () => {
     const fb = document.createElement('span');
@@ -605,13 +596,12 @@ function buildStatic() {
     team.appendChild(h);
     const ul = document.createElement('ul');
     for (const t of ['K', 'Q', 'R', 'B', 'N', 'P']) {
-      const pk = POKEMON[side][t];
       const li = document.createElement('li');
       const img = document.createElement('img');
-      img.src = SPRITE(pk.id);
-      img.alt = pk.name;
+      img.src = SPRITE(POKEMON[t].id, side);
+      img.alt = pokeName(t, side);
       const name = document.createElement('span');
-      name.textContent = pk.name;
+      name.textContent = pokeName(t, side);
       const role = document.createElement('span');
       role.className = 'role';
       role.textContent = `— ${PIECE_NAMES[t]}`;
